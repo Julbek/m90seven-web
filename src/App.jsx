@@ -1,27 +1,42 @@
 
- import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "./App.css";
 import logoWhite from "./assets/M90SEVEN_LOGO_ABB_WHITE.png";
-import whatsapp_icon from "./assets/Whatsapp_Icon_BB.png"; 
+import iconWhite from "./assets/M90SEVEN_ICON_Mono_03_small.png";
+import whatsapp_icon from "./assets/Whatsapp_Icon_BB.png";
 import linkedin_icon from "./Assets/LinkedIn_Icon_BB.png";
 
 /*
   PHOTOGRAPHY SITE — MULTI-BRAND SKELETON
   ========================================
-  Three variants, one codebase:
+  Two variants, one codebase:
     m90seven.events.co.uk     → theme="events"    (dark)
     m90seven.weddings.co.uk   → theme="weddings"  (light/white)
-    m90seven.lifestyle.co.uk  → theme="lifestyle"  (flat colour)
 
-  In production, set theme via:
-    - env variable: VITE_THEME=events
-    - or derive from window.location.hostname
-    - or pass as prop: <App theme="events" />
-
-  CMS:   Cloudinary (free tier)
+  CMS:   Cloudinary (free tier) — cloud name: dc598thou
   Book:  Cal.com (free tier)
   Build: Vite + React
 */
+
+// ── CLOUDINARY CONFIG ───────────────────────────────────────────────
+const CLOUD_NAME = "dc598thou";
+
+async function fetchGallery(folder) {
+  try {
+    const res = await fetch(
+      `https://res.cloudinary.com/${CLOUD_NAME}/image/list/${folder}.json`
+    );
+    if (!res.ok) return [];
+    const data = await res.json();
+    return data.resources.map((r) => ({
+      src: `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_1200,q_auto,f_auto/${r.public_id}`,
+      thumb: `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_600,q_auto,f_auto/${r.public_id}`,
+      id: r.public_id,
+    }));
+  } catch {
+    return [];
+  }
+}
 
 // ── THEME CONFIG ────────────────────────────────────────────────────
 const CURRENT_THEME = "events";
@@ -30,6 +45,7 @@ const THEMES = {
   events: {
     "--bg": "#111",
     "--bg-secondary": "#1a1a1a",
+    "--nav-elements": "#000000",
     "--text": "#e8e8e8",
     "--text-muted": "#ffffff",
     "--border": "#2a2a2a",
@@ -37,7 +53,7 @@ const THEMES = {
     "--surface": "#1e1e1e",
     "--overlay": "rgba(0,0,0,0.85)",
     "--modal-bg": "#1a1a1a",
-    "--nav-bg": "rgba(17,17,17,0.95)",
+    "--nav-bg": "rgba(224, 224, 224, 0.95)",
     "--tab-inactive": "#666",
     label: "Events",
   },
@@ -55,42 +71,15 @@ const THEMES = {
     "--tab-inactive": "#bbb",
     label: "Weddings",
   },
-  lifestyle: {
-    "--bg": "#f0ece4",
-    "--bg-secondary": "#e6e0d4",
-    "--text": "#3a3530",
-    "--text-muted": "#8a8580",
-    "--border": "#d4cec4",
-    "--accent": "#6b8f71",
-    "--surface": "#f7f4ee",
-    "--overlay": "rgba(0,0,0,0.88)",
-    "--modal-bg": "#f7f4ee",
-    "--nav-bg": "rgba(240,236,228,0.95)",
-    "--tab-inactive": "#aaa59e",
-    label: "Lifestyle",
-  },
 };
 
-// ── PLACEHOLDER DATA ────────────────────────────────────────────────
-const HERO_SLIDES = [
-  { id: 1, color: "#444" },
-  { id: 2, color: "#555" },
-  { id: 3, color: "#666" },
-];
-
+// ── DATA ────────────────────────────────────────────────────────────
 const CATEGORIES = [
-  { slug: "galas", label: "Galas" },
-  { slug: "corporate", label: "Corporate" },
-  { slug: "Performing Arts", label: "Performing Arts" },
-  { slug: "Private Gatherings", label: "Private Gatherings" },
+  { slug: "galas-awards", label: "Galas & Awards" },
+  { slug: "conferences-panels", label: "Conferences & Panels" },
+  { slug: "ceremonies-receptions", label: "Ceremonies & Receptions" },
+  { slug: "performing-arts", label: "Performing Arts" },
 ];
-
-const GALLERY_IMAGES = {
-  galas: Array.from({ length: 16 }, (_, i) => ({ id: `galas-${i + 1}`, color: `hsl(0,0%,${55 + i * 4}%)` })),
-  corporate: Array.from({ length: 16}, (_, i) => ({ id: `corp-${i + 1}`, color: `hsl(0,0%,${50 + i * 5}%)` })),
-  "Performing Arts": Array.from({ length: 16 }, (_, i) => ({ id: `port-${i + 1}`, color: `hsl(0,0%,${52 + i * 5}%)` })),
-  "Private Gatherings": Array.from({ length: 16 }, (_, i) => ({ id: `evt-${i + 1}`, color: `hsl(0,0%,${48 + i * 5}%)` })),
-};
 
 const TESTIMONIALS = [
   { name: "Aneta Machyckova", role: "Google", text: "His photos feel like movie frames, recreating each moment with a beautiful sense of wonder. Professional without being stiff, creative without overdoing it, and always goes the extra mile." },
@@ -102,28 +91,41 @@ const TESTIMONIALS = [
   { name: "Elizabeth Anderson", role: "Digital Poverty Alliance", text: "Booked at short notice for an evening event. Very responsive, professional, courteous and provided the photos quickly. The shots are lovely and just what we needed." },
   { name: "Ella Hoxha", role: "Newton Investment", text: "Incredible value for money. Professional, punctual and so artistic. We loved our photos so much." },
 ];
+
 const PRICING = [
-  {title: 'Short Coverage', price: '£350', duration: 'Up to 2 hours'},
-  {title: 'Half Day Coverage', price: '£500', duration: 'Up to 4 hours'},
-  {title: 'Full Day Coverage', price: '£800', duration: 'Up to 8 hours'},
+  { title: "Short Coverage", price: "£300", duration: "Up to 2 hours" },
+  { title: "Half Day Coverage", price: "£500", duration: "Up to 4 hours" },
+  { title: "Full Day Coverage", price: "£800", duration: "Up to 8 hours" },
 ];
+
 const PRICING_INCLUDES = [
-  '15-minute consultation and planning',
-  '50 to 80 edited photos per hour',
-  '3–5 business day delivery',
-  'Print-ready high-resolution files',
-  'Online gallery',
-  'Full usage rights',
+  "Consultation and planning",
+  "Minimum 30 edited photos per hour",
+  "Same-day highlights on request",
+  "Delivery within 1-3 business days",
+  "Press-ready high-resolution files",
+  "Secure online gallery",
+  "Full usage rights",
 ];
-const PRICING_NOTE =
-  'Extended coverage beyond 8 hours available at £100/hour. All photos include professional colour grading and lighting correction. Retouching (skin, object removal, compositing) quoted separately. Get in touch for a tailored quote.';
+
+const PRICING_NOTE = <>
+  VAT not included. Extended coverage beyond 8 hours available at £100/hour. All photos include professional colour grading and lighting correction. Retouching (skin, object removal, compositing) quoted separately. <a href="mailto:contact@m90seven.co.uk"><b>Get in touch</b></a> for a tailored quote.
+</>;
 
 const CAL_LINK = "https://cal.com/YOUR_USERNAME";
 
+const FAQS = [
+  { q: "What types of events do you cover?", a: "Corporate galas, award ceremonies, conferences, panels, charity events, celebrations, and performing arts. If you're unsure whether your event is a fit, get in touch." },
+  { q: "How far in advance should I book?", a: "As early as possible, but we also accommodate last-minute bookings when available. Get in touch and we'll confirm availability within 24 hours." },
+  { q: "Do you have public liability insurance?", a: "Yes, fully insured with £5M public liability cover. Certificates available on request." },
+  { q: "What happens if you're unwell or unavailable?", a: "In the unlikely event of an emergency, we will arrange a trusted replacement photographer or offer a full refund. Your event is always covered." },
+  { q: "Can I request specific shots or a shot list?", a: "Absolutely. We welcome shot lists and will work with you during the planning stage to make sure nothing is missed." },
+  { q: "How are photos delivered?", a: "Through a secure, password-protected online gallery. You'll receive a link within 5 business days. Same-day highlights available on request." },
+  { q: "Can I use the photos for marketing and press?", a: "Yes. Full usage rights for marketing, PR, social media, and internal communications are included in every package." },
+  { q: "Do you cover events outside London?", a: "Yes, available UK-wide. Travel costs may apply depending on location." },
+];
 
 // ── COMPONENTS ──────────────────────────────────────────────────────
-
-
 
 function Modal({ open, onClose, title, children }) {
   useEffect(() => {
@@ -168,9 +170,12 @@ function Lightbox({ images, currentIndex, onClose, onPrev, onNext }) {
         </>
       )}
       <div className="lightbox-stage" onClick={onClose}>
-        <div className="lightbox-image" style={{ background: img.color }} onClick={(e) => e.stopPropagation()}>
-          {img.id}
-        </div>
+        <img
+          src={img.src}
+          alt=""
+          className="lightbox-img"
+          onClick={(e) => e.stopPropagation()}
+        />
       </div>
       <div className="lightbox-counter">{currentIndex + 1} / {images.length}</div>
     </div>
@@ -180,16 +185,22 @@ function Lightbox({ images, currentIndex, onClose, onPrev, onNext }) {
 function HeroSlideshow({ slides }) {
   const [current, setCurrent] = useState(0);
   useEffect(() => {
+    if (slides.length === 0) return;
     const timer = setInterval(() => setCurrent((c) => (c + 1) % slides.length), 5000);
     return () => clearInterval(timer);
   }, [slides.length]);
+
+  if (slides.length === 0) return null;
+
   return (
     <>
       <div className="hero-slideshow">
         {slides.map((s, i) => (
-          <div key={s.id} className={`hero-slide ${i === current ? "active" : ""}`} style={{ background: s.color }}>
-            Hero image {s.id}
-          </div>
+          <div
+            key={s.id}
+            className={`hero-slide ${i === current ? "active" : ""}`}
+            style={{ background: `url(${s.src}) center/cover no-repeat` }}
+          />
         ))}
       </div>
       <div className="hero-overlay" />
@@ -202,33 +213,71 @@ function HeroSlideshow({ slides }) {
   );
 }
 
+function FAQ() {
+  const [openIndex, setOpenIndex] = useState(null);
+
+  const toggle = (i) => {
+    setOpenIndex(openIndex === i ? null : i);
+  };
+
+  return (
+    <div className="section" id="faq">
+      <h2 className="faq-h2">Frequently Asked Questions</h2>
+      <div className="faq-list">
+        {FAQS.map((item, i) => (
+          <div key={i} className="faq-item">
+            <button className="faq-question" onClick={() => toggle(i)}>
+              <span>{item.q}</span>
+              <span className="faq-icon">{openIndex === i ? "−" : "+"}</span>
+            </button>
+            <div className={`faq-answer ${openIndex === i ? "faq-open" : ""}`}>
+              <p>{item.a}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── APP ─────────────────────────────────────────────────────────────
 export default function App() {
+  // ── Form state ──
+  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  // ── Email copy state ──
   const [hovered, setHovered] = useState(false);
-const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-const handleCopyEmail = () => {
-  navigator.clipboard.writeText("contact@m90seven.uk.co");
-  setCopied(true);
-};
-
-const handleMouseEnter = () => setHovered(true);
-
-const handleMouseLeave = () => {
-  setHovered(false);
-  setCopied(false);
-};
+  // ── UI state ──
   const [theme, setTheme] = useState(CURRENT_THEME);
   const [menuOpen, setMenuOpen] = useState(false);
   const [pricingOpen, setPricingOpen] = useState(false);
-  const [bookingOpen, setBookingOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState("galas");
+  const [selectedPackage, setSelectedPackage] = useState(null);
+  const [activeCategory, setActiveCategory] = useState(CATEGORIES[0]?.slug || "galas-awards");
   const [lightboxIndex, setLightboxIndex] = useState(null);
-  const [emailCopyStatus, setEmailCopyStatus] = useState(null);
 
-  const images = GALLERY_IMAGES[activeCategory] || [];
+  // ── Cloudinary: hero images ──
+  const [heroImages, setHeroImages] = useState([]);
+  useEffect(() => {
+    fetchGallery("hero").then(setHeroImages);
+  }, []);
+
+  // ── Cloudinary: gallery images ──
+  const [images, setImages] = useState([]);
+  const [galleryLoading, setGalleryLoading] = useState(false);
+  useEffect(() => {
+    setGalleryLoading(true);
+    fetchGallery(activeCategory).then((imgs) => {
+      setImages(imgs);
+      setGalleryLoading(false);
+    });
+  }, [activeCategory]);
+
+  // ── Handlers ──
   const themeVars = THEMES[theme];
-
   const themeStyle = {};
   Object.entries(themeVars).forEach(([k, v]) => {
     if (k.startsWith("--")) themeStyle[k] = v;
@@ -238,6 +287,13 @@ const handleMouseLeave = () => {
     setMenuOpen(false);
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
+
+  const handleCopyEmail = () => {
+    navigator.clipboard.writeText("contact@m90seven.co.uk");
+    setCopied(true);
+  };
+  const handleMouseEnter = () => setHovered(true);
+  const handleMouseLeave = () => { setHovered(false); setCopied(false); };
 
   const closeLightbox = () => setLightboxIndex(null);
   const prevSlide = useCallback(() => {
@@ -251,9 +307,10 @@ const handleMouseLeave = () => {
     <>
       <div className="app" style={themeStyle}>
 
+        {/* ── Navbar ── */}
         <nav className="navbar">
           <div className="nav-logo-container" style={{ cursor: "pointer" }} onClick={() => scrollTo("top")}>
-            <img className="nav-logo"  src={logoWhite} alt="M90Seven" />
+            <img className="nav-logo" src={iconWhite} alt="M90Seven" />
           </div>
           <button className="nav-toggle" onClick={() => setMenuOpen(!menuOpen)}>
             {menuOpen ? "✕" : "☰"}
@@ -262,26 +319,28 @@ const handleMouseLeave = () => {
             <a href="#" onClick={(e) => { e.preventDefault(); scrollTo("galleries"); }}>Work</a>
             <a href="#" onClick={(e) => { e.preventDefault(); scrollTo("about"); }}>About</a>
             <a href="#" onClick={(e) => { e.preventDefault(); scrollTo("testimonials"); }}>Reviews</a>
+            <a href="#" onClick={(e) => { e.preventDefault(); scrollTo("faqs"); }}>FAQs</a>
             <a href="#" onClick={(e) => { e.preventDefault(); scrollTo("contact"); }}>Contact</a>
             <button className="nav-btn" onClick={() => { setMenuOpen(false); setPricingOpen(true); }}>
-              Transparent Pricing
+              Packages
             </button>
           </div>
         </nav>
 
+        {/* ── Hero ── */}
         <section className="hero" id="top">
-          <HeroSlideshow slides={HERO_SLIDES} />
+          <HeroSlideshow slides={heroImages} />
           <div className="hero-content">
             <img className="hero-logo" src={logoWhite} alt="M90Seven" />
-            <p>{themeVars.label} Event photography with empathy, precision and cinematic vision.</p>
+            <p>Event photography with empathy, precision and cinematic vision.</p>
             <a href="#" className="hero-cta" onClick={(e) => { e.preventDefault(); scrollTo("galleries"); }}>
               View Work
             </a>
           </div>
         </section>
 
+        {/* ── Gallery ── */}
         <div className="section" id="galleries">
-
           <div className="gallery-tabs">
             {CATEGORIES.map((cat) => (
               <button
@@ -294,14 +353,23 @@ const handleMouseLeave = () => {
             ))}
           </div>
           <div className="gallery-grid">
-            {images.map((img, idx) => (
-              <div key={img.id} className="gallery-item" onClick={() => setLightboxIndex(idx)}>
-                <div className="gallery-placeholder" style={{ background: img.color }}>{img.id}</div>
-              </div>
-            ))}
+            {galleryLoading ? (
+              <p style={{ color: "var(--text-muted)", fontSize: "0.8rem", padding: "2rem 0" }}>Loading...</p>
+            ) : images.length === 0 ? (
+              <p style={{ color: "var(--text-muted)", fontSize: "0.8rem", padding: "2rem 0" }}>
+                No images yet. Upload to Cloudinary folder: <code>{activeCategory}/</code>
+              </p>
+            ) : (
+              images.map((img, idx) => (
+                <div key={img.id} className="gallery-item" onClick={() => setLightboxIndex(idx)}>
+                  <img src={img.thumb} alt="" loading="lazy" className="gallery-img" />
+                </div>
+              ))
+            )}
           </div>
         </div>
 
+        {/* ── Lightbox ── */}
         <Lightbox
           images={images}
           currentIndex={lightboxIndex}
@@ -310,17 +378,30 @@ const handleMouseLeave = () => {
           onNext={nextSlide}
         />
 
+        {/* ── About ── */}
         <div className="section" id="about">
           <div className="about-content">
             <div className="about-photo">Your Photo</div>
             <div className="about-text">
-              <p>M90SEVEN is a London-based imaging studio specializing in high-impact event coverage, corporate storytelling, and strategic visual narratives. 
-Founded by photographer and designer Julian Bektashi, the studio’s ethos is informed by multidisciplinary background in the arts and design, and delivers timeless, classically composed, cinematic images, with particular attention to atmosphere and ultimately the human element. </p>
-              <p className="about-paragraph">Reliable, responsive, and trusted by corporate clients , charities and private hosts across London.</p>
+              <p>
+                M90SEVEN is a London-based photography studio specialising in corporate
+                events, galas, and high-profile occasions. Founded by photographer and
+                designer Julian Bektashi, the studio brings a sharp artistic eye and a
+                clear intent to every assignment — precise, discreet coverage that never
+                misses a moment that matters.
+              </p>
+              <p>
+                Every image is crafted for atmosphere, storytelling, and impact. Excellence
+                is the standard. Reliability and client care are non-negotiable. We are a
+                young studio, but our portfolio speaks for itself — world-class images
+                delivered for leading corporate clients, charities, and private hosts
+                across London.
+              </p>
             </div>
           </div>
         </div>
 
+        {/* ── Testimonials ── */}
         <div className="section" id="testimonials">
           <div className="testimonials-grid">
             {TESTIMONIALS.map((t, i) => (
@@ -335,67 +416,143 @@ Founded by photographer and designer Julian Bektashi, the studio’s ethos is in
           </div>
         </div>
 
-  <footer className="site-footer" id="contact">
-          <div className="footer-grid">
-            <div>
- <div
-  className="email-wrapper"
-  onMouseEnter={handleMouseEnter}
-  onMouseLeave={handleMouseLeave}
-  onClick={handleCopyEmail}
-  style={{ cursor: "pointer" }}
->
-  <div className="pop-out-text">
-    {hovered ? (copied ? "Copied! :)" : "Click to copy email") : "\u00A0"}
-  </div>
-  <div className="contact-email">contact@m90seven.uk.co</div>
-</div>
-              <p>Based in London, available UK-Wide.</p>
-            </div>
-            <div>
-            </div>
-            <div className="footer-social">
-              <a href="#"><img className="social-icon" src={whatsapp_icon} alt="WhatsApp" /></a>
-              <a href="#"><img className="social-icon" src={linkedin_icon} alt="LinkedIn" /></a>
-            </div>
-          </div>
-          <p className="footer-copy">©2026 M90SEVEN Photography. Website by Betsu Works.</p>
-        </footer>
+        {/* ── FAQ ── */}
+        <div id="faqs">
+          <FAQ />
+        </div>
 
-       <Modal open={pricingOpen} onClose={() => setPricingOpen(false)}>
-  <div className="pricing-grid">
-    {PRICING.map((p, i) => (
-      <div key={i} className="pricing-card">
-        <h3>{p.title}</h3>
-        <p className="pricing-price">{p.price}</p>
-        <p style={{ fontSize: "0.8rem", color: "var(--text-muted)" }}>{p.duration}</p>
-      </div>
-    ))}
-    <div className="pricing-card">
-      <h3>All packages include</h3>
-      <ul>{PRICING_INCLUDES.map((item, j) => <li key={j}>{item}</li>)}</ul>
+        {/* ── Footer ── */}
+<footer className="site-footer" id="contact">
+  <div className="footer-main">
+
+    <div className="footer-brand">
+      <img className="footer-logo" src={logoWhite} alt="M90Seven" />
+      <p>London-based photography studio specialising in corporate events, galas, and high-profile occasions.</p>
     </div>
-    <p className="pricing-note">{PRICING_NOTE}</p>
-  </div>
-</Modal>
 
-        <Modal open={bookingOpen} onClose={() => setBookingOpen(false)} title="Book a Consultation">
-          <div className="booking-content">
-            <p>Choose a time for a free 15-minute consultation.</p>
-            <a href={CAL_LINK} target="_blank" rel="noopener noreferrer" className="booking-link">
-              Open Booking Calendar →
-            </a>
-          </div>
+    <div className="footer-contact">
+      <div
+        className="email-wrapper"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+        onClick={handleCopyEmail}
+        style={{ cursor: "pointer" }}
+      >
+        <div className="pop-out-text">
+          {hovered ? (copied ? "Copied!" : "Click to copy") : "\u00A0"}
+        </div>
+        <div className="contact-email">contact@m90seven.co.uk</div>
+      </div>
+      <p>+44 20 XXXX XXXX</p>
+      <p>Based in London, available UK-wide</p>
+      <div className="footer-social">
+        <a href="#"><img className="social-icon" src={whatsapp_icon} alt="WhatsApp" /></a>
+        <a href="#"><img className="social-icon" src={linkedin_icon} alt="LinkedIn" /></a>
+      </div>
+    </div>
+
+
+  </div>
+
+  <div className="footer-bottom">
+    <p className="footer-copy">©2026 M90SEVEN PRODUCTIONS</p>
+    <p className="footer-copy">Website by Betsu Works</p>
+  </div>
+</footer>
+
+        {/* ── Pricing Modal ── */}
+        <Modal
+          open={pricingOpen}
+          onClose={() => {
+            setPricingOpen(false);
+            setSelectedPackage(null);
+            setFormData({ name: "", email: "", message: "" });
+            setSent(false);
+          }}
+          title="Transparent Pricing"
+        >
+          {selectedPackage ? (
+            <div className="enquiry-form">
+              <button className="enquiry-back" onClick={() => { setSelectedPackage(null); setFormData({ name: "", email: "", message: "" }); setSent(false); }}>
+                ← Back to packages
+              </button>
+              <h3>Enquiry: {selectedPackage.title}</h3>
+              <p className="enquiry-subtitle">{selectedPackage.price} · {selectedPackage.duration}</p>
+              {sent ? (
+                <p style={{ color: "var(--text-muted)", fontSize: "0.9rem", padding: "1rem 0" }}>
+                  Thank you! We'll be in touch within 24 hours.
+                </p>
+              ) : (
+                <>
+                  <input
+                    type="text"
+                    className="enquiry-input"
+                    placeholder="Your name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  />
+                  <input
+                    type="email"
+                    className="enquiry-input"
+                    placeholder="Your email"
+                    value={formData.email}
+                    onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  />
+                  <textarea
+                    className="enquiry-textarea enquiry-input"
+                    placeholder="Tell us about your event (date, venue, any details)"
+                    rows={4}
+                    value={formData.message}
+                    onChange={(e) => setFormData({ ...formData, message: e.target.value })}
+                  />
+                  <button
+                    className="enquiry-submit"
+                    onClick={async () => {
+                      setSending(true);
+                      await fetch("https://api.web3forms.com/submit", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                          access_key: "YOUR_WEB3FORMS_KEY",
+                          subject: `Enquiry: ${selectedPackage.title} (${selectedPackage.price})`,
+                          name: formData.name,
+                          email: formData.email,
+                          message: formData.message,
+                        }),
+                      });
+                      setSending(false);
+                      setSent(true);
+                    }}
+                    disabled={sending}
+                  >
+                    {sending ? "Sending..." : "Send Enquiry"}
+                  </button>
+                </>
+              )}
+            </div>
+          ) : (
+            <div className="pricing-grid">
+              {PRICING.map((p, i) => (
+                <div
+                  key={i}
+                  className="pricing-card"
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setSelectedPackage(p)}
+                >
+                  <h3>{p.title}</h3>
+                  <p className="pricing-price">{p.price}</p>
+                  <p style={{ fontSize: "0.82rem", color: "var(--text-muted)" }}>{p.duration}</p>
+                </div>
+              ))}
+              <div className="pricing-card">
+                <h3>All packages include</h3>
+                <ul>{PRICING_INCLUDES.map((item, j) => <li key={j}>{item}</li>)}</ul>
+              </div>
+              <p className="pricing-note">{PRICING_NOTE}</p>
+            </div>
+          )}
         </Modal>
 
-        {/* DEV ONLY — remove in production */}
-        <div className="theme-switcher">
-          {Object.keys(THEMES).map((t) => (
-            <button key={t} className={theme === t ? "ts-active" : ""} onClick={() => setTheme(t)}>
-              {t}
-            </button>
-          ))}
-        </div>
       </div>
     </>
   );
