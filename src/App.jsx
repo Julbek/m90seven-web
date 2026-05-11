@@ -28,11 +28,13 @@ async function fetchGallery(folder) {
     );
     if (!res.ok) return [];
     const data = await res.json();
-    return data.resources.map((r) => ({
-      src: `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_1200,q_auto,f_auto/${r.public_id}`,
-      thumb: `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_600,q_auto,f_auto/${r.public_id}`,
-      id: r.public_id,
-    }));
+    return data.resources
+      .sort((a, b) => a.public_id.localeCompare(b.public_id))
+      .map((r) => ({
+        src: `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/q_90,f_auto/${r.public_id}`,
+        thumb: `https://res.cloudinary.com/${CLOUD_NAME}/image/upload/w_800,q_auto,f_auto/${r.public_id}`,
+        id: r.public_id,
+      }));
   } catch {
     return [];
   }
@@ -47,14 +49,14 @@ const THEMES = {
     "--bg-secondary": "#1a1a1a",
     "--nav-elements": "#000000",
     "--text": "#e8e8e8",
-    "--text-muted": "#ffffff",
-    "--border": "#2a2a2a",
+    "--text-muted": "#858585",
+    "--border": "#ffffff",
     "--accent": "#fff",
     "--surface": "#1e1e1e",
     "--overlay": "rgba(0,0,0,0.85)",
     "--modal-bg": "#1a1a1a",
-    "--nav-bg": "rgba(224, 224, 224, 0.95)",
-    "--tab-inactive": "#666",
+    "--nav-bg": "rgba(255, 255, 255, 0.95)",
+    "--tab-inactive": "#ffffff",
     label: "Events",
   },
   weddings: {
@@ -78,7 +80,6 @@ const CATEGORIES = [
   { slug: "galas-awards", label: "Galas & Awards" },
   { slug: "conferences-panels", label: "Conferences & Panels" },
   { slug: "ceremonies-receptions", label: "Ceremonies & Receptions" },
-  { slug: "performing-arts", label: "Performing Arts" },
 ];
 
 const TESTIMONIALS = [
@@ -123,6 +124,8 @@ const FAQS = [
   { q: "How are photos delivered?", a: "Through a secure, password-protected online gallery. You'll receive a link within 5 business days. Same-day highlights available on request." },
   { q: "Can I use the photos for marketing and press?", a: "Yes. Full usage rights for marketing, PR, social media, and internal communications are included in every package." },
   { q: "Do you cover events outside London?", a: "Yes, available UK-wide. Travel costs may apply depending on location." },
+  { q: "Do you do video coverage?", a: "No, we specialise in still photography. However, we can recommend trusted videographers for your needs." },
+  
 ];
 
 // ── COMPONENTS ──────────────────────────────────────────────────────
@@ -406,6 +409,7 @@ export default function App() {
           <div className="testimonials-grid">
             {TESTIMONIALS.map((t, i) => (
               <blockquote key={i} className="testimonial-card">
+                <div className="rating">★★★★★</div>
                 <p>"{t.text}"</p>
                 <footer>
                   <strong>{t.name}</strong>
