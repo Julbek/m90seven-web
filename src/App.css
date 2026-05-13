@@ -79,7 +79,7 @@ button { cursor: pointer; font: inherit; border: none; background: none; color: 
 }
 
 /* ── Mobile ── */
-.nav-toggle { color: var(--bg);display: none; font-size: 1.25rem; padding: 0.25rem; }
+.nav-toggle { color: black;display: none; font-size: 1.25rem; padding: 0.25rem; }
 @media (max-width: 720px) {
   .nav-toggle { display: block; }
   .nav-links {
@@ -89,7 +89,7 @@ button { cursor: pointer; font: inherit; border: none; background: none; color: 
     left: 0;
     right: 0;
     flex-direction: column;
-    background: black;
+    background: var(--nav-bg);
     backdrop-filter: blur(20px);
     padding: 2rem;
     gap: 1.5rem;

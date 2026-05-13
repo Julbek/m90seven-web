@@ -55,7 +55,7 @@ const THEMES = {
     "--surface": "#1e1e1e",
     "--overlay": "rgba(0,0,0,0.85)",
     "--modal-bg": "#1a1a1a",
-    "--nav-bg": "rgba(255, 255, 255, 0.95)",
+    "--nav-bg": "rgb(245, 245, 245)",
     "--tab-inactive": "#ffffff",
     label: "Events",
   },
