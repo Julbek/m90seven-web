@@ -30,7 +30,6 @@ button { cursor: pointer; font: inherit; border: none; background: none; color: 
   -webkit-backdrop-filter: blur(20px);
   transition: all 0.3s ease;
   border-bottom: 6px solid black;
-  opacity: 100%;
 }
 
 /* ── Logo images ── */
@@ -894,6 +893,7 @@ button { cursor: pointer; font: inherit; border: none; background: none; color: 
   .pricing-price { font-size: 2rem; }
   .star { font-size: 2rem; }
   .footer-logo { max-width: 100%; }
+  .footer-copy { text-align: right; }
   .lightbox-arrow { width: 36px; height: 36px; font-size: 1.2rem; }
   .lightbox-close { width: 32px; height: 32px; font-size: 1.2rem; }
 }
