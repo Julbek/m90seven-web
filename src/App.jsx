@@ -404,13 +404,13 @@ useEffect(() => {
         M90SEVEN is a London-based photography studio specialising in corporate
         events, galas, and high-profile occasions. Founded by photographer and
         designer Julian Bektashi, the studio brings a sharp artistic eye and a
-        clear intent to every assignment — precise, discreet coverage that never
+        clear intent to every assignment, precise, discreet coverage that never
         misses a moment that matters.
       </p>
       <p>
         Every image is crafted for atmosphere, storytelling, and impact. Excellence
         is the standard. Reliability and client care are non-negotiable. We are a
-        young studio, but our portfolio speaks for itself — world-class images
+        young studio, but our portfolio speaks for itself, world-class images
         delivered for leading corporate clients, charities, and private hosts
         across London.
       </p>
