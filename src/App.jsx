@@ -83,14 +83,14 @@ const CATEGORIES = [
 ];
 
 const TESTIMONIALS = [
-  { name: "Aneta Machyckova", role: "Google", text: "His photos feel like movie frames, recreating each moment with a beautiful sense of wonder. Professional without being stiff, creative without overdoing it, and always goes the extra mile." },
-  { name: "Milena Zeqo", role: "Essex Court Chambers", text: "Full control of his craft, driven by a genuine passion for what he does. Highly professional, articulate, consistently reliable, and always delivers artistically brilliant images." },
-  { name: "Lauren Carter", role: "Deka Chambers", text: "Very attentive to our needs for a Silks Celebration, made sure every moment was beautifully captured. Went above and beyond to deliver stunning images, both elegant formal shots and intimate, candid moments." },
-  { name: "Esmerjan Licaj", role: "UKAP Foundation", text: "Incredibly responsive to our needs for a corporate gala, ensuring every detail was flawlessly captured. Delivered breathtaking photos — striking professional portraits and warm, spontaneous moments that truly brought the event to life." },
-  { name: "Ambra Azizi", role: "OmniaMed Communications", text: "Creative and full of ideas. A fluid and authentic approach to capturing key moments across a variety of events, from professional networking to educational panels." },
-  { name: "Driton Bilali", role: "Ilex Group", text: "Amazing communicator and photographer that captured every moment with a diligent and well trained eye. Will have him again with pleasure at any event." },
-  { name: "Elizabeth Anderson", role: "Digital Poverty Alliance", text: "Booked at short notice for an evening event. Very responsive, professional, courteous and provided the photos quickly. The shots are lovely and just what we needed." },
-  { name: "Ella Hoxha", role: "Newton Investment", text: "Incredible value for money. Professional, punctual and so artistic. We loved our photos so much." },
+  { name: "Aneta Machyckova", role: "Google", headline: "Like movie frames", text: "His photos feel like movie frames, recreating each moment with a beautiful sense of wonder. Professional without being stiff, creative without overdoing it, and always goes the extra mile." },
+  { name: "Milena Zeqo", role: "Essex Court Chambers", headline: "Consistently Reliable", text: "Full control of his craft, driven by a genuine passion for what he does. Highly professional, articulate, consistently reliable, and always delivers artistically brilliant images." },
+  { name: "Lauren Carter", role: "Deka Chambers", headline: "Above and beyond", text: "Very attentive to our needs for a Silks Celebration, made sure every moment was beautifully captured. Went above and beyond to deliver stunning images, both elegant formal shots and intimate, candid moments." },
+  { name: "Esmerjan Licaj", role: "UKAP Foundation", headline: "Breathtaking photos", text: "Incredibly responsive to our needs for a corporate gala, ensuring every detail was flawlessly captured. Delivered breathtaking photos — striking professional portraits and warm, spontaneous moments that truly brought the event to life." },
+  { name: "Ambra Azizi", role: "OmniaMed Communications", headline: "Creative and full of ideas", text: "Creative and full of ideas. A fluid and authentic approach to capturing key moments across a variety of events, from professional networking to educational panels." },
+  { name: "Driton Bilali", role: "Ilex Group", headline: "Diligent and well trained eye", text: "Amazing communicator and photographer that captured every moment with a diligent and well trained eye. Will have him again with pleasure at any event." },
+  { name: "Elizabeth Anderson", role: "Digital Poverty Alliance", headline: "Responsive and professional", text: "Booked at short notice for an evening event. Very responsive, professional, courteous and provided the photos quickly. The shots are lovely and just what we needed." },
+  { name: "Ella Hoxha", role: "Newton Investment", headline: "Punctual and professional", text: "Incredible value for money. Professional, punctual and so artistic. We loved our photos so much." },
 ];
 
 const PRICING = [
@@ -279,6 +279,14 @@ export default function App() {
     });
   }, [activeCategory]);
 
+  const [aboutPhoto, setAboutPhoto] = useState(null);
+
+useEffect(() => {
+  fetchGallery("about-photo").then((imgs) => {
+    if (imgs.length > 0) setAboutPhoto(imgs[0].src);
+  });
+}, []);
+
   // ── Handlers ──
   const themeVars = THEMES[theme];
   const themeStyle = {};
@@ -355,21 +363,23 @@ export default function App() {
               </button>
             ))}
           </div>
-          <div className="gallery-grid">
-            {galleryLoading ? (
-              <p style={{ color: "var(--text-muted)", fontSize: "0.8rem", padding: "2rem 0" }}>Loading...</p>
-            ) : images.length === 0 ? (
-              <p style={{ color: "var(--text-muted)", fontSize: "0.8rem", padding: "2rem 0" }}>
-                No images yet. Upload to Cloudinary folder: <code>{activeCategory}/</code>
-              </p>
-            ) : (
-              images.map((img, idx) => (
-                <div key={img.id} className="gallery-item" onClick={() => setLightboxIndex(idx)}>
-                  <img src={img.thumb} alt="" loading="lazy" className="gallery-img" />
-                </div>
-              ))
-            )}
-          </div>
+         <div className="gallery-grid">
+  {galleryLoading ? (
+    Array.from({ length: 20 }).map((_, i) => (
+      <div key={i} className="gallery-item gallery-skeleton" />
+    ))
+  ) : images.length === 0 ? (
+    <p style={{ color: "var(--text-muted)", fontSize: "0.8rem", padding: "2rem 0" }}>
+      No images yet
+    </p>
+  ) : (
+    images.map((img, idx) => (
+      <div key={img.id} className="gallery-item" onClick={() => setLightboxIndex(idx)}>
+        <img src={img.thumb} alt="" loading="lazy" className="gallery-img" />
+      </div>
+    ))
+  )}
+</div>
         </div>
 
         {/* ── Lightbox ── */}
@@ -383,42 +393,49 @@ export default function App() {
 
         {/* ── About ── */}
         <div className="section" id="about">
-          <div className="about-content">
-            <div className="about-photo">Your Photo</div>
-            <div className="about-text">
-              <p>
-                M90SEVEN is a London-based photography studio specialising in corporate
-                events, galas, and high-profile occasions. Founded by photographer and
-                designer Julian Bektashi, the studio brings a sharp artistic eye and a
-                clear intent to every assignment — precise, discreet coverage that never
-                misses a moment that matters.
-              </p>
-              <p>
-                Every image is crafted for atmosphere, storytelling, and impact. Excellence
-                is the standard. Reliability and client care are non-negotiable. We are a
-                young studio, but our portfolio speaks for itself — world-class images
-                delivered for leading corporate clients, charities, and private hosts
-                across London.
-              </p>
-            </div>
-          </div>
-        </div>
+  <div className="about-content">
+    {aboutPhoto ? (
+      <img className="about-photo" src={aboutPhoto} alt="Julian Bektashi" />
+    ) : (
+      <div className="about-photo">Your Photo</div>
+    )}
+    <div className="about-text">
+      <p>
+        M90SEVEN is a London-based photography studio specialising in corporate
+        events, galas, and high-profile occasions. Founded by photographer and
+        designer Julian Bektashi, the studio brings a sharp artistic eye and a
+        clear intent to every assignment — precise, discreet coverage that never
+        misses a moment that matters.
+      </p>
+      <p>
+        Every image is crafted for atmosphere, storytelling, and impact. Excellence
+        is the standard. Reliability and client care are non-negotiable. We are a
+        young studio, but our portfolio speaks for itself — world-class images
+        delivered for leading corporate clients, charities, and private hosts
+        across London.
+      </p>
+    </div>
+  </div>
+</div>
 
         {/* ── Testimonials ── */}
-        <div className="section" id="testimonials">
-          <div className="testimonials-grid">
-            {TESTIMONIALS.map((t, i) => (
-              <blockquote key={i} className="testimonial-card">
-                <div className="rating">★★★★★</div>
-                <p>"{t.text}"</p>
-                <footer>
-                  <strong>{t.name}</strong>
-                  <span>{t.role}</span>
-                </footer>
-              </blockquote>
-            ))}
-          </div>
-        </div>
+<div className="section" id="testimonials">
+  <div className="testimonials-grid">
+    {TESTIMONIALS.map((t, i) => (
+  <blockquote key={i} className="testimonial-card">
+  <h3 className="testimonial-headline">{t.headline}</h3>
+  <p>"{t.text}"</p>
+  <footer>
+    <strong>{t.name}</strong>
+    <span>{t.role}</span>
+  </footer>
+</blockquote>
+    ))}
+  </div>
+  <a href="https://g.page/m90seven/review" target="_blank" rel="noopener noreferrer" className="google-reviews-link">
+    See all reviews on Google
+  </a>
+</div>
 
         {/* ── FAQ ── */}
         <div id="faqs">
@@ -431,36 +448,45 @@ export default function App() {
 
     <div className="footer-brand">
       <img className="footer-logo" src={logoWhite} alt="M90Seven" />
-      <p>London-based photography studio specialising in corporate events, galas, and high-profile occasions.</p>
+     <p>
+  Event photography with empathy, precision and cinematic vision. We cover corporate galas, conferences, award ceremonies, and high-profile occasions across London and the UK. Our images don't just document events, they recreate the atmosphere, the tension, the quiet moments between the loud ones.
+</p>
+
     </div>
 
-    <div className="footer-contact">
-      <div
-        className="email-wrapper"
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onClick={handleCopyEmail}
-        style={{ cursor: "pointer" }}
-      >
-        <div className="pop-out-text">
-          {hovered ? (copied ? "Copied!" : "Click to copy") : "\u00A0"}
-        </div>
-        <div className="contact-email">contact@m90seven.co.uk</div>
-      </div>
-      <p>+44 20 XXXX XXXX</p>
-      <p>Based in London, available UK-wide</p>
-      <div className="footer-social">
-        <a href="#"><img className="social-icon" src={whatsapp_icon} alt="WhatsApp" /></a>
-        <a href="#"><img className="social-icon" src={linkedin_icon} alt="LinkedIn" /></a>
-      </div>
+<div className="footer-contact">
+  <div
+    className="email-wrapper"
+    onMouseEnter={handleMouseEnter}
+    onMouseLeave={handleMouseLeave}
+    onClick={handleCopyEmail}
+    style={{ cursor: "pointer" }}
+  >
+    <div className="pop-out-text">
+      {hovered ? (copied ? "Copied!" : "Click to copy") : "\u00A0"}
     </div>
+    <div className="contact-email">contact@m90seven.co.uk</div>
+  </div>
+  <p></p>
+  <p>Based in London, available UK-wide</p>
+<div className="footer-social">
+  <a href="#" className="social-link">
+    <img className="social-icon-sm" src={linkedin_icon} alt="" />
+    <span className="social-label">LinkedIn</span>
+  </a>
+  <a href="#" className="social-link">
+    <img className="social-icon-sm" src={whatsapp_icon} alt="" />
+    <span className="social-label">WhatsApp</span>
+  </a>
+</div>
+</div>
 
 
   </div>
 
   <div className="footer-bottom">
     <p className="footer-copy">©2026 M90SEVEN PRODUCTIONS</p>
-    <p className="footer-copy">Website by Betsu Works</p>
+    <p className="footer-copy">Website by <a href="https://betsu.co.uk" target="_blank" rel="noopener noreferrer"><strong>Betsu Works</strong></a></p>
   </div>
 </footer>
 
