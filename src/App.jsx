@@ -4,7 +4,7 @@ import "./App.css";
 import logoWhite from "./assets/M90SEVEN_LOGO_ABB_WHITE.png";
 import iconWhite from "./assets/M90SEVEN_ICON_Mono_03_small.png";
 import whatsapp_icon from "./assets/Whatsapp_Icon_BB.png";
-import linkedin_icon from "./Assets/LinkedIn_Icon_BB.png";
+import linkedin_icon from "./assets/LinkedIn_Icon_BB.png";
 
 /*
   PHOTOGRAPHY SITE — MULTI-BRAND SKELETON
