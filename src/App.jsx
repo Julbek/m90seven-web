@@ -470,11 +470,11 @@ useEffect(() => {
   <p></p>
   <p>Based in London, available UK-wide</p>
 <div className="footer-social">
-  <a href="#" className="social-link">
+  <a href="https://www.linkedin.com/company/m90seven" className="social-link">
     <img className="social-icon-sm" src={linkedin_icon} alt="" />
     <span className="social-label">LinkedIn</span>
   </a>
-  <a href="#" className="social-link">
+  <a href="https://wa.me/4477395390152" className="social-link" target="_blank" rel="noopener noreferrer">
     <img className="social-icon-sm" src={whatsapp_icon} alt="" />
     <span className="social-label">WhatsApp</span>
   </a>
@@ -486,7 +486,7 @@ useEffect(() => {
 
   <div className="footer-bottom">
     <p className="footer-copy">©2026 M90SEVEN PRODUCTIONS</p>
-    <p className="footer-copy">Website by <a href="https://betsu.co.uk" target="_blank" rel="noopener noreferrer"><strong>Betsu Works</strong></a></p>
+    <p className="footer-copy">Website by <a href="https://www.betsu.co.uk/" target="_blank" rel="noopener noreferrer"><strong>Betsu Works</strong></a></p>
   </div>
 </footer>
 
